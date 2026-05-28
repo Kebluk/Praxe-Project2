@@ -24,5 +24,4 @@ void RGB_AnalogWrite(uint8_t red, uint8_t green, uint8_t blue) {
 
 void RGB_SetBrightness(RGBColor color, uint8_t value) {
     analogWrite((color == RGB_RED) ? PB18 : (color == RGB_GREEN) ? PB19 : PD1, value);
-
 }
