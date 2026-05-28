@@ -41,6 +41,7 @@ static uint8_t pinInited[160];
 static uint8_t tpmInited[3];
 static uint8_t chInited[3][6];
 
+// Returns predefined TPM config for a given pin, or valid=0 if pin doesn't have predefined TPM functionality
 static TpmPinConfig TpmConfigFromPin(NotArduinoPin pin)
 {
     switch (pin)
@@ -56,6 +57,9 @@ static TpmPinConfig TpmConfigFromPin(NotArduinoPin pin)
     }
 }
 
+/**
+ * Initializes the pin for TPM use if it hasn't been initialized yet. Sets the correct MUX mode for the pin, enables clock gating for the PORT, and disables GPIO output driver to avoid conflicts with TPM functionality.
+ */
 static void pinInitOnce(NotArduinoPin pin, uint8_t alt)
 {
     int port = pin / 32;
@@ -76,9 +80,13 @@ static void pinInitOnce(NotArduinoPin pin, uint8_t alt)
     PORTS[port]->PCR[pinInPort] = (PORTS[port]->PCR[pinInPort] & ~(0x7 << 8)) | (alt << 8);
 }
 
+/**
+ * Initializes the TPM module if it hasn't been initialized yet. Enables clock gating for the TPM module, selects the clock source, and sets the prescaler and MOD for ~10kHz PWM frequency. Does NOT enable the counter yet, as that should only be done after all channels are configured to avoid unintended behavior.
+ */
 static void tpmInitOnce(TPM_Type *tpm)
 {
-    int i = (tpm == TPM0) ? 0 : (tpm == TPM1) ? 1 : 2;
+    int i = (tpm == TPM0) ? 0 : (tpm == TPM1) ? 1
+                                              : 2;
     if (i < 0 || i > 2 || tpmInited[i])
         return;
 
@@ -104,9 +112,12 @@ static void tpmInitOnce(TPM_Type *tpm)
     tpm->SC = TPM_SC_PS(0);
     tpm->MOD = 4799; // ~10kHz PWM frequency
 
-    tpmInited[i] = 1;
+    tpmInited[i] = 1; // Mark this TPM as initialized
 }
 
+/**
+ * Initializes a TPM channel if it hasn't been initialized yet. Sets the correct configuration for the channel, including the PWM mode and initial duty cycle.
+ */
 static void tpmChannelInitOnce(TPM_Type *tpm, uint8_t ch)
 {
     int i = (tpm == TPM0) ? 0 : (tpm == TPM1) ? 1
@@ -117,7 +128,7 @@ static void tpmChannelInitOnce(TPM_Type *tpm, uint8_t ch)
     tpm->CONTROLS[ch].CnSC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK; // Edge-aligned PWM, High-true pulses
     tpm->CONTROLS[ch].CnV = 0;                                       // Start with 0% duty cycle
 
-    chInited[i][ch] = 1;
+    chInited[i][ch] = 1; // Mark this channel as initialized
 }
 
 void analogWrite(NotArduinoPin pin, uint8_t value)
