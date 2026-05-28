@@ -3,8 +3,7 @@
 
 typedef enum {
     INPUT = 0,
-    OUTPUT = 1,
-    OUTPUT_TPM = 2
+    OUTPUT = 1
 } NotArduinoPinMode;
 
 typedef enum {
@@ -45,10 +44,30 @@ typedef enum {
     PE24, PE25, PE26, PE27, PE28, PE29, PE30, PE31
 } NotArduinoPin;
 
+/**
+ * @brief Configure a pin as INPUT or OUTPUT
+ * @param pin The pin to configure
+ * @param mode The mode to set the pin to (INPUT or OUTPUT)
+ */
 void pinMode(NotArduinoPin pin, NotArduinoPinMode mode);
 
+/**
+ * @brief Write a digital value (HIGH or LOW) to a pin
+ * @param pin The pin to write to
+ * @param digitalValue The digital value to write (HIGH or LOW)
+ */
 void digitalWrite(NotArduinoPin pin, NotArduinoDigitalValue digitalValue);
 
-int digitalRead(NotArduinoPin pin);
+/**
+ * @brief Read a digital value (HIGH or LOW) from a pin
+ * @param pin The pin to read from
+ * @return The digital value read (HIGH or LOW)
+ */
+NotArduinoDigitalValue digitalRead(NotArduinoPin pin);
 
+/**
+ * @brief Write an analog value (0-255) to a pin using PWM. Doesn't need pinMode() beforehand, but pin must support TPM functionality.
+ * @param pin The pin to write to (set automatically to the correct MUX mode for TPM)
+ * @param value The analog value to write (0-255)
+ */
 void analogWrite(NotArduinoPin pin, uint8_t value);
