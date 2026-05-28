@@ -29,8 +29,8 @@ int digitalRead(NotArduinoPin pin)
     return (GPIOS[port]->PDIR & (1 << pinInPort)) ? HIGH : LOW;
 }
 
-
-typedef struct {
+typedef struct
+{
     uint8_t valid;
     TPM_Type *tpm;
     uint8_t ch;
@@ -41,7 +41,8 @@ static uint8_t pinInited[160];
 static uint8_t tpmInited[3];
 static uint8_t chInited[3][6];
 
-static TpmPinConfig TpmConfigFromPin(NotArduinoPin pin) {
+static TpmPinConfig TpmConfigFromPin(NotArduinoPin pin)
+{
     switch (pin)
     {
     case PB18:
@@ -55,16 +56,43 @@ static TpmPinConfig TpmConfigFromPin(NotArduinoPin pin) {
     }
 }
 
-static void tpmInitOnce(TPM_Type *tpm) {
+static void pinInitOnce(NotArduinoPin pin, uint8_t alt)
+{
+    int port = pin / 32;
+    int pinInPort = pin % 32;
+    // Enable clock to the PORT
+    uint32_t portMasks[] = {
+        SIM_SCGC5_PORTA_MASK,
+        SIM_SCGC5_PORTB_MASK,
+        SIM_SCGC5_PORTC_MASK,
+        SIM_SCGC5_PORTD_MASK,
+        SIM_SCGC5_PORTE_MASK};
+    SIM->SCGC5 |= portMasks[port];
+
+    // Disable GPIO output driver (clear PDDR bit) to avoid conflict with TPM
+    GPIOS[port]->PDDR &= ~(1 << pinInPort);
+
+    // Clear ALT bits (10:8) and set to correct TPM mode
+    PORTS[port]->PCR[pinInPort] = (PORTS[port]->PCR[pinInPort] & ~(0x7 << 8)) | (alt << 8);
+}
+
+static void tpmInitOnce(TPM_Type *tpm)
+{
     int i = (tpm == TPM0) ? 0 : (tpm == TPM1) ? 1 : 2;
-    if (i < 0 || i > 2 || tpmInited[i]) return;
+    if (i < 0 || i > 2 || tpmInited[i])
+        return;
 
     // Enable clock gating for TPM module
-    if (tpm == TPM0) {
+    if (tpm == TPM0)
+    {
         SIM->SCGC6 |= SIM_SCGC6_TPM0_MASK;
-    } else if (tpm == TPM1) {
+    }
+    else if (tpm == TPM1)
+    {
         SIM->SCGC6 |= SIM_SCGC6_TPM1_MASK;
-    } else if (tpm == TPM2) {
+    }
+    else if (tpm == TPM2)
+    {
         SIM->SCGC6 |= SIM_SCGC6_TPM2_MASK;
     }
 
@@ -79,12 +107,15 @@ static void tpmInitOnce(TPM_Type *tpm) {
     tpmInited[i] = 1;
 }
 
-static void tpmChannelInitOnce(TPM_Type *tpm, uint8_t ch) {
-    int i = (tpm == TPM0) ? 0 : (tpm == TPM1) ? 1 : 2;
-    if (i < 0 || i > 2 || ch > 5 || chInited[i][ch]) return;
+static void tpmChannelInitOnce(TPM_Type *tpm, uint8_t ch)
+{
+    int i = (tpm == TPM0) ? 0 : (tpm == TPM1) ? 1
+                                              : 2;
+    if (i < 0 || i > 2 || ch > 5 || chInited[i][ch])
+        return;
 
     tpm->CONTROLS[ch].CnSC = TPM_CnSC_MSB_MASK | TPM_CnSC_ELSA_MASK; // Edge-aligned PWM, High-true pulses
-    tpm->CONTROLS[ch].CnV = 0; // Start with 0% duty cycle
+    tpm->CONTROLS[ch].CnV = 0;                                       // Start with 0% duty cycle
 
     chInited[i][ch] = 1;
 }
@@ -92,27 +123,12 @@ static void tpmChannelInitOnce(TPM_Type *tpm, uint8_t ch) {
 void analogWrite(NotArduinoPin pin, uint8_t value)
 {
     TpmPinConfig cfg = TpmConfigFromPin(pin);
-    if (!(cfg.valid)) return; // Invalid pin for TPM
+    if (!(cfg.valid))
+        return; // Invalid pin for TPM
 
-    int port = pin / 32;
-    int pinInPort = pin % 32;
-
-    if (!pinInited[pin]) {
-        // Enable clock to the PORT
-        uint32_t portMasks[] = {
-            SIM_SCGC5_PORTA_MASK,
-            SIM_SCGC5_PORTB_MASK,
-            SIM_SCGC5_PORTC_MASK,
-            SIM_SCGC5_PORTD_MASK,
-            SIM_SCGC5_PORTE_MASK
-        };
-        SIM->SCGC5 |= portMasks[port];
-
-        // Disable GPIO output driver (clear PDDR bit) to avoid conflict with TPM
-        GPIOS[port]->PDDR &= ~(1 << pinInPort);
-
-        // Clear ALT bits (10:8) and set to correct TPM mode
-        PORTS[port]->PCR[pinInPort] = (PORTS[port]->PCR[pinInPort] & ~(0x7 << 8)) | (cfg.alt << 8);
+    if (!pinInited[pin])
+    {
+        pinInitOnce(pin, cfg.alt);
         tpmInitOnce(cfg.tpm);
         tpmChannelInitOnce(cfg.tpm, cfg.ch);
 
