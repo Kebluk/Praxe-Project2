@@ -1,8 +1,10 @@
 #pragma once
+#include "MKL25Z4.h"
 
 typedef enum {
     INPUT = 0,
-    OUTPUT = 1
+    OUTPUT = 1,
+    OUTPUT_TPM = 2
 } NotArduinoPinMode;
 
 typedef enum {
@@ -48,3 +50,5 @@ void pinMode(NotArduinoPin pin, NotArduinoPinMode mode);
 void digitalWrite(NotArduinoPin pin, NotArduinoDigitalValue digitalValue);
 
 int digitalRead(NotArduinoPin pin);
+
+void analogWrite(NotArduinoPin pin, uint8_t value);
