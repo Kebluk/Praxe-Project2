@@ -6,6 +6,11 @@ typedef enum {
 } NotArduinoPinMode;
 
 typedef enum {
+    OFF = 0,
+    ON = 1
+} NotArduinoSwich;
+
+typedef enum {
     LOW = 0,
     HIGH = 1
 } NotArduinoDigitalValue;
