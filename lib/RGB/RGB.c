@@ -3,23 +3,16 @@
 #include "MKL25Z4.h"
 
 void RGB_init(void) {
-    SIM->SCGC5 |= SIM_SCGC5_PORTB_MASK; // Enable clock for PORTB
-    SIM->SCGC5 |= SIM_SCGC5_PORTD_MASK; // Enable clock for PORTD
+    /*                      Configure TPM0 for PWM
+    TPM0->CONTROLS[0].CnSC |= 0b01010; // Edge-aligned PWM, high-true pulses
+    TPM0->CONTROLS[1].CnSC |= 0b01010; // Edge-aligned PWM, high-true pulses
+    TPM0->CONTROLS[2].CnSC |= 0b01010; // Edge-aligned PWM, high-true pulses
+    */
 
     pinMode(PB18, OUTPUT); // Red
     pinMode(PB19, OUTPUT); // Green
     pinMode(PD1, OUTPUT);  // Blue
     RGB_Set(OFF, OFF, OFF); // Initialize RGB to off
-    // Configure TPM0 for PWM
-    SIM->SOPT2 |= SIM_SOPT2_TPMSRC(1); // Set TPM clock source to MCGFLLCLK
-    SIM->SCGC6 |= SIM_SCGC6_TPM0_MASK; // Enable clock for TPM0
-    TPM0->CONTROLS[0].CnSC |= TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK; // Edge-aligned PWM, high-true pulses
-    TPM0->CONTROLS[1].CnSC |= TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK; // Edge-aligned PWM, high-true pulses
-    TPM0->CONTROLS[2].CnSC |= TPM_CnSC_MSB_MASK | TPM_CnSC_ELSB_MASK; // Edge-aligned PWM, high-true pulses
-    TPM0->MOD = 255; // Set PWM period
-    TPM0->CONTROLS[0].CnV = 0; // Start with red off
-    TPM0->CONTROLS[1].CnV = 0; // Start with green off
-    TPM0->CONTROLS[2].CnV = 0; // Start with blue off
     }
 
 void RGB_Set(NotArduinoSwich red, NotArduinoSwich green, NotArduinoSwich blue) {
