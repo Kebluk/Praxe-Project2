@@ -61,8 +61,3 @@ int readPot1() {
 int readPot2() {
     return readADCChannel(12);
 }
-
-// Backward compatible single read value (defaults to Pot 1)
-int readValue() {
-    return readPot1();
-}

@@ -81,4 +81,4 @@ int map(int x, int in_min, int in_max, int out_min, int out_max);
  * @brief Active delay helper function. This actively feeds (refreshes) the Watchdog Timer during the wait period.
  * @param ms Delay time in milliseconds.
  */
-void delay_ms(uint32_t ms);
+void delay_ms(uint32_t ms); 
