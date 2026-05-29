@@ -4,22 +4,6 @@
 #include "PoT.h"
 #include "Serial.h"
 
-/**
- * @brief Active delay helper function.
- * This actively feeds (refreshes) the Watchdog Timer during the wait period.
- * * @param ms Delay time in milliseconds.
- */
-void delay_ms(uint32_t ms) {
-    for (uint32_t i = 0; i < ms; i++) {
-        // Calibration loop for ~1 millisecond.
-        // On a core clock of ~20.97 MHz, 1ms is approx 21000 clock cycles.
-        for (volatile uint32_t j = 0; j < 3000; j++) {
-            __asm("nop");
-        }
-        wdog_refresh(); // Feed the watchdog to prevent reset
-    }
-}
-
 void main(void) {
     wdog_init(WDOG_CONF_DIS); // Initialize watchdog config
     Serial_begin(115200);      // Initialize UART1 at 115200 baud

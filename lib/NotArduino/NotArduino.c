@@ -160,3 +160,14 @@ void analogWrite(NotArduinoPin pin, uint8_t value)
 int map(int x, int in_min, int in_max, int out_min, int out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+void delay_ms(uint32_t ms) {
+    for (uint32_t i = 0; i < ms; i++) {
+        // Calibration loop for ~1 millisecond.
+        // On a core clock of ~20.97 MHz, 1ms is approx 21000 clock cycles.
+        for (volatile uint32_t j = 0; j < 3000; j++) {
+            __asm("nop");
+        }
+        wdog_refresh(); // Feed the watchdog to prevent reset
+    }
+}
