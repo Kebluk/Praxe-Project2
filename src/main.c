@@ -7,6 +7,7 @@
 void main(void) {
     wdog_init(WDOG_CONF_DIS);
     Serial_begin(115200);
+    RGB_init();
     
     while (1) {
         wdog_refresh();
