@@ -4,20 +4,33 @@
 #include "res_alloc.h"
 
 void Serial_begin(uint32_t baudrate) {
-    // Configure UART0 pin mux for terminal TX/RX
+    // 1. Safety: Enable the System Clock Gate for PORTA (assuming RX/TX are on PTA1/PTA2)
+    // If your pins are on PORTD, use SIM_SCGC5_PORTD_MASK instead.
+    SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
+
+    // 2. Configure UART0 pin mux for terminal TX/RX (Alt 2)
     PORT_UART0_RX->PCR[IOIND_UART0_RX] = PORT_PCR_MUX(PORT_PCR_MUX_VAL_ALT2);
     PORT_UART0_TX->PCR[IOIND_UART0_TX] = PORT_PCR_MUX(PORT_PCR_MUX_VAL_ALT2);
 
-    // Configure UART0 for the specified baud rate
+    // 3. Configure UART0 clock gating and clock source
     SIM->SCGC4 |= SIM_SCGC4_UART0_MASK; // Enable clock for UART0
-    SIM->SOPT2 |= SIM_SOPT2_UART0SRC(1); // Set UART0 clock source to MCGFLLCLK
+    
+    // Clear and set the UART0 clock source to MCGFLLCLK (1)
+    SIM->SOPT2 = (SIM->SOPT2 & ~SIM_SOPT2_UART0SRC_MASK) | SIM_SOPT2_UART0SRC(1);
 
+    // 4. Calculate SBR (baudDivisor) accounting for the 16x oversampling ratio (OSR)
     uint32_t uartClock = 20971520; // MCGFLLCLK frequency
-    uint32_t baudDivisor = (uartClock + (baudrate / 2)) / baudrate; // Calculate baud divisor
-    UART0->BDH = (baudDivisor >> 8) & 0x1F; // Set high byte of baud divisor
-    UART0->BDL = baudDivisor & 0xFF; // Set low byte of baud divisor
+    
+    // Formula: SBR = uartClock / (baudrate * 16)
+    // Adding (baudrate * 8) provides mathematical rounding to the nearest integer
+    uint32_t baudDivisor = (uartClock + (baudrate * 8)) / (baudrate * 16); 
 
-    UART0->C2 |= UART_C2_TE_MASK | UART_C2_RE_MASK; // Enable transmitter and receiver
+    // Set high and low bytes of the baud divisor
+    UART0->BDH = (baudDivisor >> 8) & 0x1F; 
+    UART0->BDL = baudDivisor & 0xFF; 
+
+    // Enable transmitter and receiver
+    UART0->C2 |= UART_C2_TE_MASK | UART_C2_RE_MASK; 
 }
 
 void Serial_write(uint8_t data) {
@@ -60,23 +73,4 @@ void Serial_printUInt(uint32_t value) {
     while (pos > 0) {
         Serial_write((uint8_t)buf[--pos]);
     }
-}
-
-void initComunication(){
-	// EN: set input multiplexer in port to UART1 peripherals
-	PORTC->PCR[3] = 0b11<<8;
-	PORTC->PCR[4] = 0b11<<8;
-
-	// EN: allow ENVIC for receiving interrupts form UART1
-	NVIC_SetPriority(UART1_IRQn, 2);
-	NVIC_EnableIRQ(UART1_IRQn);
-
-	// EN: enable sending interrupt for incoming and finished messages
-	UART1->C2 = (UART_C2_RIE_MASK | UART_C2_TE_MASK | UART_C2_RE_MASK);
-
-	// EN: setup speed of communication to 115200Bd
-	UART1->BDH = UART_BDH_SBR(13u >> 8u);
-	UART1->BDL = UART_BDL_SBR(13u);
-
-
 }

@@ -7,4 +7,3 @@ void Serial_print(const char *s);
 void Serial_println(const char *s);
 void Serial_printInt(int32_t value);
 void Serial_printUInt(uint32_t value);
-void initComunication();
