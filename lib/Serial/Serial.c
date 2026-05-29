@@ -4,9 +4,8 @@
 #include "res_alloc.h"
 
 void Serial_begin(uint32_t baudrate) {
-    // 1. Safety: Enable the System Clock Gate for PORTA (assuming RX/TX are on PTA1/PTA2)
-    // If your pins are on PORTD, use SIM_SCGC5_PORTD_MASK instead.
-    SIM->SCGC5 |= SIM_SCGC5_PORTA_MASK;
+    // 1. Safety: Enable the System Clock Gate for PORTC (RX/TX are on PTC3/PTC4)
+    SIM->SCGC5 |= SIM_SCGC5_PORTC_MASK;
 
     // 2. Configure UART0 pin mux for terminal TX/RX (Alt 2)
     PORT_UART0_RX->PCR[IOIND_UART0_RX] = PORT_PCR_MUX(PORT_PCR_MUX_VAL_ALT2);
@@ -19,7 +18,7 @@ void Serial_begin(uint32_t baudrate) {
     SIM->SOPT2 = (SIM->SOPT2 & ~SIM_SOPT2_UART0SRC_MASK) | SIM_SOPT2_UART0SRC(1);
 
     // 4. Calculate SBR (baudDivisor) accounting for the 16x oversampling ratio (OSR)
-    uint32_t uartClock = 20971520; // MCGFLLCLK frequency
+    uint32_t uartClock = (32768U * 640U); // MCGFLLCLK frequency
     
     // Formula: SBR = uartClock / (baudrate * 16)
     // Adding (baudrate * 8) provides mathematical rounding to the nearest integer
