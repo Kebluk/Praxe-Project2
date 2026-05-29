@@ -15,13 +15,13 @@ void RGB_init(void);
  * @brief Set the state of the RGB LED
  * @param state The state to set the RGB LED to
  */
-void RGB_Set(NotArduinoSwich state);
+void RGB_Set(NotArduinoSwitch state);
 
 /** @brief Set the state of a specific color channel
  * @param color The color channel to set
  * @param state The state to set the color channel to
  */
-void RGB_SetColor(RGBColor color, NotArduinoSwich state);
+void RGB_SetColor(RGBColor color, NotArduinoSwitch state);
 
 /** @brief Set the analog values for each color channel
  * @param red The brightness of the red channel (0-255)

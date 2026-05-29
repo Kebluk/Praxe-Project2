@@ -5,13 +5,13 @@ void RGB_init(void) {
     RGB_Set(OFF); // Initialize RGB to off
 }
 
-void RGB_Set(NotArduinoSwich state) {
+void RGB_Set(NotArduinoSwitch state) {
     RGB_SetColor(RGB_RED, state);
     RGB_SetColor(RGB_GREEN, state);
     RGB_SetColor(RGB_BLUE, state);
 }
 
-void RGB_SetColor(RGBColor color, NotArduinoSwich state) {
+void RGB_SetColor(RGBColor color, NotArduinoSwitch state) {
     // Note: The FRDM-KL25Z RGB LED is active-low (0 is fully bright, 255 is off)
     uint8_t duty = (state == ON) ? 255 : 0;
     
