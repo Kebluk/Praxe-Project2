@@ -71,3 +71,4 @@ NotArduinoDigitalValue digitalRead(NotArduinoPin pin);
  * @param value The analog value to write (0-255)
  */
 void analogWrite(NotArduinoPin pin, uint8_t value);
+int map(int x, int in_min, int in_max, int out_min, int out_max);
