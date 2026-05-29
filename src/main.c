@@ -7,7 +7,7 @@
 void main(void) {
     wdog_init(WDOG_CONF_DIS); // Initialize watchdog config
     Serial_begin(115200);      // Initialize UART1 at 115200 baud
-    RGB_SetColorBrightness(RGB_RED, 32); // Start with red off
+    RGB_SetColorBrightness(RGB_RED, 24); // Start with red off
     while (1) {
         wdog_refresh();         // Direct main-loop watchdog refresh
         int value1 = readPot1(); // Read analog value from POT (PTC2 / Channel 11)
