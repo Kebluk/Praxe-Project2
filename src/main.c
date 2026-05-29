@@ -8,9 +8,10 @@ void main(void) {
     wdog_init(WDOG_CONF_DIS);
     Serial_begin(115200);
     RGB_init();
+    RGB_Set(ON);
     
+
     while (1) {
-        wdog_refresh();
         int value = readValue();
 
         Serial_print("value = ");
