@@ -137,14 +137,14 @@ void analogWrite(NotArduinoPin pin, uint8_t value)
     if (!(cfg.valid))
         return; // Invalid pin for TPM
 
+    // Stop the counter before configuring/reconfiguring a channel
+    cfg.tpm->SC &= ~TPM_SC_CMOD_MASK;
+
     if (!pinInited[pin])
     {
         pinInitOnce(pin, cfg.alt);
         tpmInitOnce(cfg.tpm);
         tpmChannelInitOnce(cfg.tpm, cfg.ch);
-
-        // Enable TPM counter after configuration is complete
-        cfg.tpm->SC |= TPM_SC_CMOD(1);
 
         pinInited[pin] = 1;
     }
@@ -152,4 +152,7 @@ void analogWrite(NotArduinoPin pin, uint8_t value)
     uint32_t mod = cfg.tpm->MOD; // So it can be changed at runtime
     // Scale 0-255 to 0-MOD with proper rounding
     cfg.tpm->CONTROLS[cfg.ch].CnV = (mod * (uint32_t)value + 127) / 255;
+
+    // Re-enable TPM counter after configuration is complete
+    cfg.tpm->SC |= TPM_SC_CMOD(1);
 }

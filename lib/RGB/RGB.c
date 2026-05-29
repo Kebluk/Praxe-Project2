@@ -20,12 +20,12 @@ void RGB_SetColor(RGBColor color, NotArduinoSwich state) {
 
 void RGB_AnalogWrite(uint8_t red, uint8_t green, uint8_t blue) {
     // Invert the inputs since the RGB LED is active-low
-    analogWrite(PB18, 255 - red);   // Set red value
-    analogWrite(PB19, 255 - green); // Set green value
-    analogWrite(PD1, 255 - blue);   // Set blue value
+    analogWrite(PB18, red);   // Set red value
+    analogWrite(PB19, green); // Set green value
+    analogWrite(PD1, blue);   // Set blue value
 }
 
 void RGB_SetColorBrightness(RGBColor color, uint8_t value) {
     // Invert the input value for active-low brightness adjustment
-    analogWrite((color == RGB_RED) ? PB18 : (color == RGB_GREEN) ? PB19 : PD1, 255 - value);
+    analogWrite((color == RGB_RED) ? PB18 : (color == RGB_GREEN) ? PB19 : PD1, value);
 }
