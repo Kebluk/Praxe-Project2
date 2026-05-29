@@ -71,4 +71,14 @@ NotArduinoDigitalValue digitalRead(NotArduinoPin pin);
  * @param value The analog value to write (0-255)
  */
 void analogWrite(NotArduinoPin pin, uint8_t value);
+
+/**
+ * @brief Map a value from one range to another
+ * @param x The value to map
+ * @param in_min The minimum value of the input range
+ * @param in_max The maximum value of the input range
+ * @param out_min The minimum value of the output range
+ * @param out_max The maximum value of the output range
+ * @return The mapped value
+ */
 int map(int x, int in_min, int in_max, int out_min, int out_max);
