@@ -21,7 +21,7 @@ void digitalWrite(NotArduinoPin pin, NotArduinoDigitalValue digitalValue)
     (digitalValue == HIGH) ? (GPIOS[port]->PDOR |= (1 << pinInPort)) : (GPIOS[port]->PDOR &= ~(1 << pinInPort));
 }
 
-int digitalRead(NotArduinoPin pin)
+NotArduinoDigitalValue digitalRead(NotArduinoPin pin)
 {
     int port = pin / 32;
     int pinInPort = pin % 32;
